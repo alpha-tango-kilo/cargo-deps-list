@@ -1,45 +1,71 @@
-use anyhow::{bail, Context, Result};
 use itertools::Itertools;
-use lazy_regex::{regex, Lazy, Regex};
+use std::env;
+use std::error::Error;
+use std::ffi::OsStr;
+use std::io;
+use std::path::Path;
 use std::process::Command;
 
-/*
-Finds a single alphanumeric character, then any lowercase letter, digit, or
-dash and unlimited number of times. Eventually there'll be a space and the
-letter v, followed by a semver. Yes 177 of the 194 characters in this regex
-are to parse semver. Deal with it
- */
-static CRATE_NAME_AND_VER: &Lazy<Regex> = regex!(
-    r#"[a-z]([0-z]|-)* v(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?"#
-);
+fn main() {
+    if let Err(why) = _main() {
+        eprintln!("{why}");
+    }
+}
 
-fn main() -> Result<()> {
+fn _main() -> Result<(), Box<dyn Error>> {
     let cargo_tree = Command::new("cargo")
-        .args(["tree", "-e", "normal"])
+        .args(["tree", "--prefix", "none"])
+        .args(env::args_os().skip_while(|arg| arg_is_binary_name(arg)))
         .output()
-        .context("failed to run cargo")?;
+        .map_err(|err| match err.kind() {
+            // Just says 'program not found' otherwise
+            io::ErrorKind::NotFound => {
+                io::Error::new(io::ErrorKind::NotFound, "Cargo not found")
+            }
+            _ => err,
+        })?;
 
     if !cargo_tree.status.success() {
-        bail!(
-            "cargo command errored (exit code {}):\n{}",
-            cargo_tree.status.code().unwrap_or_default(),
-            String::from_utf8_lossy(&cargo_tree.stderr),
-        );
+        return Err(String::from_utf8_lossy(&cargo_tree.stderr).into());
     }
 
     let stdout = String::from_utf8_lossy(&cargo_tree.stdout);
     let mut count = 0usize;
 
-    CRATE_NAME_AND_VER
-        .captures_iter(stdout.as_ref())
-        .map(|capture| capture.get(0).unwrap().as_str())
+    stdout
+        .as_ref()
+        .lines()
+        .map(|line| {
+            if let Some(index) = line.find('(') {
+                &line[..index - 1]
+            } else {
+                line
+            }
+        })
         .unique()
         .for_each(|dep| {
             count += 1;
-            eprintln!("{}", dep);
+            eprintln!("{dep}");
         });
 
     eprint!("\nTotal dependencies: ");
     println!("{count}");
     Ok(())
+}
+
+/*
+Predicate to filter out anything from env::args_os() that is either:
+- the binary name (cargo-deps)
+- cargo
+- the cargo subcommand (deps)
+ */
+fn arg_is_binary_name(arg: &OsStr) -> bool {
+    arg.eq_ignore_ascii_case("deps")
+        || Path::new(arg)
+            .file_stem()
+            .map(|name| {
+                name.eq_ignore_ascii_case("cargo")
+                    || name.eq_ignore_ascii_case(env!("CARGO_PKG_NAME"))
+            })
+            .unwrap_or(false)
 }
