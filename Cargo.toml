@@ -1,14 +1,20 @@
 [package]
 name = "cargo-deps-list"
 description = "Cargo subcommand to get a list of dependencies in a typical build"
-categories = ["development-tools", "development-tools::cargo-plugins"]
+categories = [
+    "development-tools",
+    "development-tools::cargo-plugins",
+    "command-line-utilities"
+]
 keywords = ["cargo", "dependencies"]
-version = "0.1.0"
+version = "1.0.0"
 edition = "2021"
 rust-version = "1.58"
 authors = ["alpha-tango-kilo <git@heyatk.com>"]
 readme = "README.md"
 license = "GPL-3.0-only"
+repository = "https://codeberg.org/alpha-tango-kilo/cargo-deps-list"
+homepage = "https://codeberg.org/alpha-tango-kilo/cargo-deps-list"
 
 [dependencies]
 itertools = "0.10"
