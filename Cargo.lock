@@ -3,7 +3,7 @@
 version = 3
 
 [[package]]
-name = "cargo-deps"
+name = "cargo-deps-list"
 version = "0.1.0"
 dependencies = [
  "itertools",

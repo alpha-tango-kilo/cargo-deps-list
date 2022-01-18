@@ -45,11 +45,10 @@ fn _main() -> Result<(), Box<dyn Error>> {
         .unique()
         .for_each(|dep| {
             count += 1;
-            eprintln!("{dep}");
+            println!("{dep}");
         });
 
-    eprint!("\nTotal dependencies: ");
-    println!("{count}");
+    println!("\nTotal dependencies: {count}");
     Ok(())
 }
 
@@ -60,7 +59,7 @@ Predicate to filter out anything from env::args_os() that is either:
 - the cargo subcommand (deps)
  */
 fn arg_is_binary_name(arg: &OsStr) -> bool {
-    arg.eq_ignore_ascii_case("deps")
+    arg.eq_ignore_ascii_case("deps-list")
         || Path::new(arg)
             .file_stem()
             .map(|name| {

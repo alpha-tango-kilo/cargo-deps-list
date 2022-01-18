@@ -1,5 +1,5 @@
 [package]
-name = "cargo-deps"
+name = "cargo-deps-list"
 description = "Cargo subcommand to get a list of dependencies in a typical build"
 categories = ["development-tools", "development-tools::cargo-plugins"]
 keywords = ["cargo", "dependencies"]
