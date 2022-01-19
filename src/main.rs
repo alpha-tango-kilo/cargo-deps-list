@@ -4,11 +4,12 @@ use std::error::Error;
 use std::ffi::OsStr;
 use std::io;
 use std::path::Path;
-use std::process::Command;
+use std::process::{exit, Command};
 
 fn main() {
     if let Err(why) = _main() {
         eprintln!("{why}");
+        exit(1);
     }
 }
 
@@ -30,17 +31,15 @@ fn _main() -> Result<(), Box<dyn Error>> {
     }
 
     let stdout = String::from_utf8_lossy(&cargo_tree.stdout);
-    let mut count = 0usize;
+    let mut count: usize = 0;
 
     stdout
         .as_ref()
         .lines()
-        .map(|line| {
-            if let Some(index) = line.find('(') {
-                &line[..index - 1]
-            } else {
-                line
-            }
+        // Strips out trailing things like "(*)"
+        .map(|line| match line.find('(') {
+            Some(index) => &line[..index - 1],
+            None => line,
         })
         .unique()
         .for_each(|dep| {
@@ -54,7 +53,7 @@ fn _main() -> Result<(), Box<dyn Error>> {
 
 /*
 Predicate to filter out anything from env::args_os() that is either:
-- the binary name (cargo-deps)
+- the binary name (cargo-deps-list)
 - cargo
 - the cargo subcommand (deps)
  */
