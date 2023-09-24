@@ -52,7 +52,13 @@ fn _main() -> Result<(), Box<dyn Error>> {
         .map(|dep| writeln!(stdout, "{dep}").unwrap())
         .count();
 
-    writeln!(stdout, "\nTotal dependencies: {count}").unwrap();
+    writeln!(
+        stdout,
+        "{}Total dependencies: {count}",
+        // Pad total with newline if there were any dependencies
+        if count > 0 { "\n" } else { "" },
+    )
+    .unwrap();
     Ok(())
 }
 

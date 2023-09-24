@@ -10,7 +10,7 @@ fn this_crate() {
     let stdout = String::from_utf8_lossy(&output.stdout);
     assert_eq!(
         stdout.as_ref().lines().count(),
-        2,
+        1,
         "more/less output than expected"
     );
     assert!(
