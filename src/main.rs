@@ -32,11 +32,10 @@ fn _main() -> Result<(), Box<dyn Error>> {
     }
 
     let cargo_tree_stdout = String::from_utf8_lossy(&cargo_tree.stdout);
-    let mut count: usize = 0;
 
     let mut deduplicator = HashSet::new();
     let mut stdout = io::stdout().lock();
-    cargo_tree_stdout
+    let count = cargo_tree_stdout
         .as_ref()
         .lines()
         // Strips out trailing things like "(*)"
@@ -45,10 +44,10 @@ fn _main() -> Result<(), Box<dyn Error>> {
             None => line,
         })
         .filter(|line| deduplicator.insert(*line))
-        .for_each(|dep| {
-            count += 1;
+        .map(|dep| {
             stdout.write_all(dep.as_bytes()).unwrap();
-        });
+        })
+        .count();
 
     writeln!(stdout, "\nTotal dependencies: {count}").unwrap();
     Ok(())
@@ -62,11 +61,8 @@ Predicate to filter out anything from env::args_os() that is either:
  */
 fn arg_is_binary_name(arg: &OsStr) -> bool {
     arg.eq_ignore_ascii_case("deps-list")
-        || Path::new(arg)
-            .file_stem()
-            .map(|name| {
-                name.eq_ignore_ascii_case("cargo")
-                    || name.eq_ignore_ascii_case(env!("CARGO_PKG_NAME"))
-            })
-            .unwrap_or(false)
+        || Path::new(arg).file_stem().map_or(false, |name| {
+            name.eq_ignore_ascii_case("cargo")
+                || name.eq_ignore_ascii_case(env!("CARGO_PKG_NAME"))
+        })
 }
