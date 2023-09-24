@@ -38,6 +38,8 @@ fn _main() -> Result<(), Box<dyn Error>> {
     let count = cargo_tree_stdout
         .as_ref()
         .lines()
+        // Skip the binary itself
+        .skip(1)
         // Strips out trailing things like "(*)"
         .map(|line| match line.find('(') {
             Some(index) => &line[..index - 1],
