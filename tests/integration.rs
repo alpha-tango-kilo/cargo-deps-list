@@ -8,7 +8,14 @@ fn this_crate() {
         .output()
         .expect("Failed to run cargo-deps-list");
     let stdout = String::from_utf8_lossy(&output.stdout);
-    assert_eq!(stdout.as_ref().lines().count(), 5);
-    assert!(stdout.ends_with("3\n"));
+    assert_eq!(
+        stdout.as_ref().lines().count(),
+        2,
+        "more/less output than expected"
+    );
+    assert!(
+        stdout.ends_with("Total dependencies: 0\n"),
+        "incorrect total dependencies"
+    );
     assert!(output.status.success());
 }
