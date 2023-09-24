@@ -1,4 +1,4 @@
-use itertools::Itertools;
+use std::collections::HashSet;
 use std::env;
 use std::error::Error;
 use std::ffi::OsStr;
@@ -33,6 +33,7 @@ fn _main() -> Result<(), Box<dyn Error>> {
     let stdout = String::from_utf8_lossy(&cargo_tree.stdout);
     let mut count: usize = 0;
 
+    let mut deduplicator = HashSet::new();
     stdout
         .as_ref()
         .lines()
@@ -41,7 +42,7 @@ fn _main() -> Result<(), Box<dyn Error>> {
             Some(index) => &line[..index - 1],
             None => line,
         })
-        .unique()
+        .filter(|line| deduplicator.insert(*line))
         .for_each(|dep| {
             count += 1;
             println!("{dep}");

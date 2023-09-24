@@ -2,7 +2,6 @@
 
 [![Codeberg CI](https://ci.codeberg.org/api/badges/alpha-tango-kilo/cargo-deps-list/status.svg)](https://ci.codeberg.org/alpha-tango-kilo/cargo-deps-list)
 [![Crates.io](https://img.shields.io/crates/v/cargo-deps-list.svg)](https://crates.io/crates/cargo-deps-list)
-[![Dependencies](https://deps.rs/repo/codeberg/alpha-tango-kilo/cargo-deps-list/status.svg)](https://deps.rs/repo/codeberg/alpha-tango-kilo/cargo-deps-list)
 
 The quick-and-dirty successor to [cargo-real-deps](https://lib.rs/cargo-real-deps)
 

@@ -17,7 +17,6 @@ repository = "https://codeberg.org/alpha-tango-kilo/cargo-deps-list"
 homepage = "https://codeberg.org/alpha-tango-kilo/cargo-deps-list"
 
 [dependencies]
-itertools = "0.10"
 
 [profile.release]
 lto = true
