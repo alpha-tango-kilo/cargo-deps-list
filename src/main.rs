@@ -3,6 +3,7 @@ use std::env;
 use std::error::Error;
 use std::ffi::OsStr;
 use std::io;
+use std::io::Write;
 use std::path::Path;
 use std::process::{exit, Command};
 
@@ -30,11 +31,12 @@ fn _main() -> Result<(), Box<dyn Error>> {
         return Err(String::from_utf8_lossy(&cargo_tree.stderr).into());
     }
 
-    let stdout = String::from_utf8_lossy(&cargo_tree.stdout);
+    let cargo_tree_stdout = String::from_utf8_lossy(&cargo_tree.stdout);
     let mut count: usize = 0;
 
     let mut deduplicator = HashSet::new();
-    stdout
+    let mut stdout = io::stdout().lock();
+    cargo_tree_stdout
         .as_ref()
         .lines()
         // Strips out trailing things like "(*)"
@@ -45,10 +47,10 @@ fn _main() -> Result<(), Box<dyn Error>> {
         .filter(|line| deduplicator.insert(*line))
         .for_each(|dep| {
             count += 1;
-            println!("{dep}");
+            stdout.write_all(dep.as_bytes()).unwrap();
         });
 
-    println!("\nTotal dependencies: {count}");
+    writeln!(stdout, "\nTotal dependencies: {count}").unwrap();
     Ok(())
 }
 
