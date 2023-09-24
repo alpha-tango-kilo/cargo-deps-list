@@ -40,10 +40,11 @@ fn _main() -> Result<(), Box<dyn Error>> {
         .lines()
         // Skip the binary itself
         .skip(1)
-        // Strips out trailing things like "(*)"
-        .map(|line| match line.find('(') {
-            Some(index) => &line[..index - 1],
-            None => line,
+        // Strips out trailing things like "(*)" and paths
+        .map(|line| {
+            line.find('(')
+                .map(|index| &line[..index - 1])
+                .unwrap_or(line)
         })
         // Strips out crates with no enabled features
         .map(|line| line.trim_end_matches(" {}"))
