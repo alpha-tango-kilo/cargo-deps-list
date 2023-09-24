@@ -16,7 +16,7 @@ fn main() {
 
 fn _main() -> Result<(), Box<dyn Error>> {
     let cargo_tree = Command::new("cargo")
-        .args(["tree", "--prefix", "none"])
+        .args(["tree", "--prefix", "none", "--format", "{p} {{{f}}}"])
         .args(env::args_os().skip_while(|arg| arg_is_binary_name(arg)))
         .output()
         .map_err(|err| match err.kind() {
@@ -45,6 +45,8 @@ fn _main() -> Result<(), Box<dyn Error>> {
             Some(index) => &line[..index - 1],
             None => line,
         })
+        // Strips out crates with no enabled features
+        .map(|line| line.trim_end_matches(" {}"))
         .filter(|line| deduplicator.insert(*line))
         .map(|dep| {
             stdout.write_all(dep.as_bytes()).unwrap();

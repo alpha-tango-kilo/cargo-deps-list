@@ -26,7 +26,7 @@ cargo install cargo-deps-list
 ## Usage
 
 Refer to `cargo tree --help`, as all `cargo-deps-list` does is pass your arguments to `cargo tree`.
-Don't provide `--prefix` though, as that's set by `cargo-deps-list`
+Don't provide `--prefix` or `--format` though, as that's managed by `cargo-deps-list`
 
 Recommended use cases:
 * `cargo deps-list` - all the dependencies used for everything
