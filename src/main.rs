@@ -3,7 +3,6 @@ use std::env;
 use std::error::Error;
 use std::ffi::OsStr;
 use std::io;
-use std::io::Write;
 use std::path::Path;
 use std::process::{exit, Command};
 
@@ -34,8 +33,7 @@ fn _main() -> Result<(), Box<dyn Error>> {
     let cargo_tree_stdout = String::from_utf8_lossy(&cargo_tree.stdout);
 
     let mut deduplicator = HashSet::new();
-    let mut stdout = io::stdout().lock();
-    let count = cargo_tree_stdout
+    let mut deps = cargo_tree_stdout
         .as_ref()
         .lines()
         // Skip the binary itself
@@ -49,16 +47,16 @@ fn _main() -> Result<(), Box<dyn Error>> {
         // Strips out crates with no enabled features
         .map(|line| line.trim_end_matches(" {}"))
         .filter(|line| deduplicator.insert(*line))
-        .map(|dep| writeln!(stdout, "{dep}").unwrap())
-        .count();
+        .collect::<Vec<_>>();
+    deps.sort_unstable();
 
-    writeln!(
-        stdout,
-        "{}Total dependencies: {count}",
+    println!(
+        "{deps}{newline}Total dependencies: {count}",
+        deps = deps.join("\n"),
         // Pad total with newline if there were any dependencies
-        if count > 0 { "\n" } else { "" },
-    )
-    .unwrap();
+        newline = if !deps.is_empty() { "\n" } else { "" },
+        count = deps.len(),
+    );
     Ok(())
 }
 
