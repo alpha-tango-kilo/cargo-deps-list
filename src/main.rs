@@ -1,10 +1,12 @@
-use std::collections::HashSet;
-use std::env;
-use std::error::Error;
-use std::ffi::OsStr;
-use std::io;
-use std::path::Path;
-use std::process::{exit, Command};
+use std::{
+    collections::HashSet,
+    env,
+    error::Error,
+    ffi::OsStr,
+    io,
+    path::Path,
+    process::{exit, Command},
+};
 
 fn main() {
     if let Err(why) = _main() {
@@ -22,7 +24,7 @@ fn _main() -> Result<(), Box<dyn Error>> {
             // Just says 'program not found' otherwise
             io::ErrorKind::NotFound => {
                 io::Error::new(io::ErrorKind::NotFound, "Cargo not found")
-            }
+            },
             _ => err,
         })?;
 
